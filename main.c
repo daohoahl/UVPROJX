@@ -70,6 +70,43 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		HAL_UART_Receive_IT(&huart1, &data_rx, 1);
 	}
 }
+
+void uart_handle()
+{
+	if(uart_flag)
+	{
+		switch(data_rx)
+		{
+			case 'S':
+				car_control(CAR_STOP_STATE, 0);
+				break;
+			case 'F':
+				car_control(CAR_FORWARD_STATE, car_speed);
+				break;
+			case 'B':
+				car_control(CAR_BACKWARD_STATE, car_speed);
+				break;
+			case 'L':
+				car_control(CAR_LEFT_STATE, car_speed);
+				break;
+			case 'R':
+				car_control(CAR_RIGHT_STATE, car_speed);
+				break;
+			default:
+				if(data_rx >= '0' && data_rx <= '9')
+				{
+					//speed : 0 -> 90
+					car_speed = (data_rx - '0') * 10;
+				}
+				else if(data_rx == 'q')
+				{
+					car_speed = 100;
+				}
+				break;
+		}
+		uart_flag = 0;
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -115,39 +152,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		if(uart_flag)
-		{
-			switch(data_rx)
-			{
-				case 'S':
-					car_control(CAR_STOP_STATE, 0);
-					break;
-				case 'F':
-					car_control(CAR_FORWARD_STATE, car_speed);
-					break;
-				case 'B':
-					car_control(CAR_BACKWARD_STATE, car_speed);
-					break;
-				case 'L':
-					car_control(CAR_LEFT_STATE, car_speed);
-					break;
-				case 'R':
-					car_control(CAR_RIGHT_STATE, car_speed);
-					break;
-				default:
-					if(data_rx >= '0' && data_rx <= '9')
-					{
-						//speed : 0 -> 90
-						car_speed = (data_rx - '0') * 10;
-					}
-					else if(data_rx == 'q')
-					{
-						car_speed = 100;
-					}
-					break;
-			}
-			uart_flag = 0;
-		}
+		uart_handle();
   }
   /* USER CODE END 3 */
 }
