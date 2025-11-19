@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0D0D">
+
+    <!-- Header - nhỏ gọn -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#1A1A1A"
+        android:paddingHorizontal="12dp">
+
+        <ImageView
+            android:id="@+id/btnMenu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_menu"
+            android:layout_centerVertical="true" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_eye" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DarkEye"
+                android:textColor="#00FF88"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginStart="6dp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnConnect"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_wifi"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+    <!-- Status Bar - rất nhỏ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:background="#151515"
+        android:paddingHorizontal="12dp">
+
+        <TextView
+            android:id="@+id/tvConnectionStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Đã kết nối"
+            android:textColor="#00FF88"
+            android:textSize="12sp"
+            android:gravity="center_vertical" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivBattery"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_battery_full" />
+
+            <TextView
+                android:id="@+id/tvBattery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="85%"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Video Stream Area - CHIẾM ƯU TIÊN -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#000000"
+        android:gravity="center">
+
+        <TextureView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/placeholderLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="visible">
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_camera_off" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đang chờ video..."
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- Video Info Overlay - nhỏ -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#80000000"
+            android:padding="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true">
+
+            <TextView
+                android:id="@+id/tvVideoInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="640x480 • 15fps"
+                android:textColor="#CCCCCC"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/tvNightVision"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔴 ĐÊM"
+                android:textColor="#FF4444"
+                android:textSize="10sp"
+                android:layout_marginTop="2dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!-- Alert Panel - nhỏ gọn -->
+    <LinearLayout
+        android:id="@+id/alertPanel"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:background="#FF6B00"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_warning" />
+
+        <TextView
+            android:id="@+id/tvAlertMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="PHÁT HIỆN CHUYỂN ĐỘNG!"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp" />
+
+        <ImageButton
+            android:id="@+id/btnCloseAlert"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            android:background="@android:color/transparent" />
+
+    </LinearLayout>
+
+    <!-- Control Panel - TỐI ƯU HÓA BỐ CỤC -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:orientation="vertical"
+        android:background="#1A1A1A"
+        android:padding="12dp">
+
+        <!-- Row 1: Secondary Controls (Camera controls) - nhỏ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Night Vision -->
+            <ImageButton
+                android:id="@+id/btnNightVision"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/ic_night_vision"
+                android:background="@drawable/btn_control_background"
+                android:scaleType="centerInside"
+                android:padding="12dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Capture -->
+            <ImageButton
+                android:id="@+id/btnCapture"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/ic_capture"
+                android:background="@drawable/btn_control_background"
+                android:scaleType="centerInside"
+                android:padding="12dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Record -->
+            <ImageButton
+                android:id="@+id/btnRecord"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/ic_record"
+                android:background="@drawable/btn_control_background"
+                android:scaleType="centerInside"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+        <!-- Row 2: Primary Controls (Movement) - LỚN và QUAN TRỌNG -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingVertical="8dp">
+
+            <!-- Left - lớn -->
+            <Button
+                android:id="@+id/btnLeft"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:text="←"
+                android:textSize="24sp"
+                android:background="@drawable/btn_control_background"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="20dp" />
+
+            <!-- Direction Pad - RẤT QUAN TRỌNG -->
+            <RelativeLayout
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="@drawable/btn_control_background"
+                android:padding="8dp">
+
+                <!-- Forward -->
+                <Button
+                    android:id="@+id/btnForward"
+                    android:layout_width="60dp"
+                    android:layout_height="50dp"
+                    android:text="↑"
+                    android:textSize="20sp"
+                    android:background="@drawable/btn_control_background"
+                    android:textColor="#FFFFFF"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentTop="true" />
+
+                <!-- Stop - ở giữa -->
+                <Button
+                    android:id="@+id/btnStop"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:text="⏹"
+                    android:textSize="14sp"
+                    android:background="@drawable/btn_stop_background"
+                    android:textColor="#FFFFFF"
+                    android:layout_centerInParent="true" />
+
+                <!-- Backward -->
+                <Button
+                    android:id="@+id/btnBackward"
+                    android:layout_width="60dp"
+                    android:layout_height="50dp"
+                    android:text="↓"
+                    android:textSize="20sp"
+                    android:background="@drawable/btn_control_background"
+                    android:textColor="#FFFFFF"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true" />
+
+                <!-- Left - trong pad (nhỏ hơn) -->
+                <Button
+                    android:id="@+id/btnLeftInner"
+                    android:layout_width="50dp"
+                    android:layout_height="45dp"
+                    android:text="←"
+                    android:textSize="16sp"
+                    android:background="@drawable/btn_control_background"
+                    android:textColor="#FFFFFF"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true" />
+
+                <!-- Right - trong pad (nhỏ hơn) -->
+                <Button
+                    android:id="@+id/btnRightInner"
+                    android:layout_width="50dp"
+                    android:layout_height="45dp"
+                    android:text="→"
+                    android:textSize="16sp"
+                    android:background="@drawable/btn_control_background"
+                    android:textColor="#FFFFFF"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <!-- Right - lớn -->
+            <Button
+                android:id="@+id/btnRight"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:text="→"
+                android:textSize="24sp"
+                android:background="@drawable/btn_control_background"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="20dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

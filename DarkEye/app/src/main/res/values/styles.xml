@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base control button style -->
+    <style name="ControlButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">#2D2D2D</item>
+        <item name="strokeColor">#00FF88</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <!-- Stop button style -->
+    <style name="ControlButton.Stop" parent="ControlButton">
+        <item name="backgroundTint">#FF4444</item>
+        <item name="strokeColor">#FF4444</item>
+    </style>
+
+    <!-- Recording button style -->
+    <style name="ControlButton.Recording" parent="ControlButton">
+        <item name="backgroundTint">#FF4444</item>
+        <item name="strokeColor">#FF4444</item>
+    </style>
+</resources>

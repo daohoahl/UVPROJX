@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary_dark">#0D0D0D</color>
+    <color name="primary_medium">#1A1A1A</color>
+    <color name="primary_light">#2D2D2D</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_green">#00FF88</color>
+    <color name="accent_red">#FF4444</color>
+    <color name="accent_orange">#FF6B00</color>
+
+    <!-- Status Colors -->
+    <color name="connected_green">#00FF88</color>
+    <color name="disconnected_red">#FF4444</color>
+
+    <!-- Alert Colors -->
+    <color name="alert_motion">#FF6B00</color>
+    <color name="alert_fire">#FF4444</color>
+
+    <!-- Control Button Colors -->
+    <color name="control_button_default">#2D2D2D</color>
+    <color name="night_vision_active">#4A4AFF</color>
+    <color name="recording_active">#FF4444</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#CCCCCC</color>
+    <color name="text_placeholder">#666666</color>
+</resources>
