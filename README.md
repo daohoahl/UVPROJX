@@ -1,2 +1,0 @@
-# UVPROJX
-UV Security MiniCar

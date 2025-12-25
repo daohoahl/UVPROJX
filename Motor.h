@@ -12,8 +12,10 @@ typedef enum
 
 typedef struct
 {
-	GPIO_TypeDef *io_port;
-	uint16_t io_pin;
+	GPIO_TypeDef *io_port1;
+	uint16_t io_pin1;
+	GPIO_TypeDef *io_port2;
+	uint16_t io_pin2;
 	TIM_HandleTypeDef *tim;
 	uint32_t tim_channel;
 	MotorState motor_state;
@@ -21,7 +23,9 @@ typedef struct
 }Motor_Typedef;
 
 void motor_control(Motor_Typedef *motor, MotorState state, uint8_t speed);
-void motor_init(Motor_Typedef*motor, GPIO_TypeDef *io_port,
-								uint16_t io_pin, TIM_HandleTypeDef *tim, uint32_t tim_channel);
+void motor_init(Motor_Typedef *motor,
+                GPIO_TypeDef *io_port1, uint16_t io_pin1,
+                GPIO_TypeDef *io_port2, uint16_t io_pin2,
+                TIM_HandleTypeDef *tim, uint32_t tim_channel);
 
 #endif

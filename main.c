@@ -44,6 +44,7 @@ TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
 
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -75,6 +76,8 @@ void uart_handle()
 {
 	if(uart_flag)
 	{
+		uart_flag = 0;
+		
 		switch(data_rx)
 		{
 			case 'S':
@@ -104,7 +107,6 @@ void uart_handle()
 				}
 				break;
 		}
-		uart_flag = 0;
 	}
 }
 /* USER CODE END 0 */
@@ -126,7 +128,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+	
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -326,10 +328,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MOTOR1_IO_Pin|MOTOR2_IO_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, MOTOR2_IO_Pin|MOTOR2_IOB13_Pin|MOTOR1_IO_Pin|MOTOR1_IOB15_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : MOTOR1_IO_Pin MOTOR2_IO_Pin */
-  GPIO_InitStruct.Pin = MOTOR1_IO_Pin|MOTOR2_IO_Pin;
+  /*Configure GPIO pins : MOTOR2_IO_Pin MOTOR2_IOB13_Pin MOTOR1_IO_Pin MOTOR1_IOB15_Pin */
+  GPIO_InitStruct.Pin = MOTOR2_IO_Pin|MOTOR2_IOB13_Pin|MOTOR1_IO_Pin|MOTOR1_IOB15_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
