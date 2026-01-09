@@ -1,7 +1,7 @@
 #ifndef CAR_H
 #define CAR_H
 
-#include "stm32f1xx.h"
+#include "stm32f1xx_hal.h"
 
 typedef enum
 {

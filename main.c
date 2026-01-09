@@ -22,6 +22,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Car.h"
+#include "stm32f1xx_hal.h"
+#include "i2c-lcd.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,10 +43,11 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
-
 
 /* USER CODE BEGIN PV */
 
@@ -54,12 +58,16 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+extern I2C_HandleTypeDef hi2c1;
+extern UART_HandleTypeDef huart1;
+char lcd_buffer[16];
 uint8_t data_rx;
 uint8_t uart_flag = 0;
 uint8_t car_speed = 100;
@@ -72,6 +80,51 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
+void uart_debug_lcd()
+{
+	if(uart_flag)
+	{
+		uart_flag = 0;
+		
+        // Xóa màn hình d? hi?n th? cái m?i
+		lcd_clear();
+		
+		// --- Dòng 1: Hi?n th? KÝ T? ---
+		lcd_put_cur(0, 0);
+        // Ki?m tra xem ký t? có in du?c ra màn hình không (ASCII t? 32 d?n 126)
+        if(data_rx >= 32 && data_rx <= 126) 
+        {
+		    sprintf(lcd_buffer, "Char: %c", data_rx);
+        }
+        else 
+        {
+            // N?u là ký t? di?u khi?n (xu?ng dòng, tab...) thì in d?u ch?m h?i
+            sprintf(lcd_buffer, "Char: [?]");
+        }
+		lcd_send_string(lcd_buffer);
+		
+		// --- Dòng 2: Hi?n th? Mã HEX và Mã th?p phân ---
+        // Ðây là cái quan tr?ng nh?t d? b?t l?i
+		lcd_put_cur(1, 0);
+		sprintf(lcd_buffer, "Hex:%02X  Dec:%d", data_rx, data_rx);
+		lcd_send_string(lcd_buffer);
+	}
+}
+
+void Show_LCD(char* status, int speed)
+{
+    lcd_clear();
+    
+    // Dòng 1: Tr?ng thái (VD: FORWARD)
+    lcd_put_cur(0, 0);
+    lcd_send_string(status);
+    
+    // Dòng 2: T?c d? (VD: Speed: 100)
+    lcd_put_cur(1, 0);
+    sprintf(lcd_buffer, "Speed: %d", speed);
+    lcd_send_string(lcd_buffer);
+}
+
 void uart_handle()
 {
 	if(uart_flag)
@@ -81,30 +134,57 @@ void uart_handle()
 		switch(data_rx)
 		{
 			case 'S':
+			case '0':
 				car_control(CAR_STOP_STATE, 0);
+				Show_LCD("STOP", 0);
 				break;
 			case 'F':
-				car_control(CAR_FORWARD_STATE, car_speed);
+			case '1':
+				car_control(CAR_FORWARD_STATE, 10);
+				Show_LCD("FORWARD", car_speed);
 				break;
 			case 'B':
-				car_control(CAR_BACKWARD_STATE, car_speed);
+			case '2':
+				car_control(CAR_BACKWARD_STATE, 20);
+				Show_LCD("BACKWARD", car_speed);
 				break;
 			case 'L':
-				car_control(CAR_LEFT_STATE, car_speed);
+			case '3':
+				car_control(CAR_LEFT_STATE, 30);
+				Show_LCD("TURN LEFT", car_speed);
 				break;
 			case 'R':
-				car_control(CAR_RIGHT_STATE, car_speed);
+			case '4':
+				car_control(CAR_RIGHT_STATE, 40);
+				Show_LCD("TURN RIGHT", car_speed);
 				break;
+			case '5':
+				car_speed = 50; 
+				Show_LCD("SPEED SET", 50);
+				break;
+			case '6': 
+				car_speed = 60; 
+				Show_LCD("SPEED SET", 60);
+				break;
+			case '7': 
+				car_speed = 70; 
+				Show_LCD("SPEED SET", 70);
+				break;
+			case '8': 
+				car_speed = 80; 
+				Show_LCD("SPEED SET", 80);
+				break;
+			case '9': 
+				car_speed = 90; 
+				Show_LCD("SPEED SET", 90);
+				break;
+			case 'q': // Max speed
+				car_speed = 100;
+				Show_LCD("SPEED SET", 100);
+				break;
+				
 			default:
-				if(data_rx >= '0' && data_rx <= '9')
-				{
-					//speed : 0 -> 90
-					car_speed = (data_rx - '0') * 10;
-				}
-				else if(data_rx == 'q')
-				{
-					car_speed = 100;
-				}
+			
 				break;
 		}
 	}
@@ -142,8 +222,14 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM1_Init();
   MX_USART1_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+	lcd_init();
+	lcd_put_cur(0, 0);
+	lcd_send_string("Waiting Data...");
 	car_init(&htim1);
+	__HAL_TIM_MOE_ENABLE(&htim1); 
+
 	HAL_UART_Receive_IT(&huart1, &data_rx, 1);
   /* USER CODE END 2 */
 
@@ -154,6 +240,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		uart_debug_lcd();
+    HAL_Delay(10);
 		uart_handle();
   }
   /* USER CODE END 3 */
@@ -199,6 +287,40 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
   * @brief TIM1 Initialization Function
   * @param None
   * @retval None
@@ -219,7 +341,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 35;
+  htim1.Init.Prescaler = 71;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 999;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
