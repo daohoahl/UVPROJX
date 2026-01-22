@@ -23,8 +23,10 @@
 /* USER CODE BEGIN Includes */
 #include "Car.h"
 #include "stm32f1xx_hal.h"
-#include "i2c-lcd.h"
 #include "stdio.h"
+#include "KeyPad.h"
+#include <string.h>
+#include "LiquidCrystal_I2C.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,135 +62,159 @@ static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
-
+LiquidCrystal_I2C hlcd1;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-extern I2C_HandleTypeDef hi2c1;
-extern UART_HandleTypeDef huart1;
-char lcd_buffer[16];
+
+//------------------- XU LY NHAP MAT KHAU ----------------------
+typedef enum
+{
+	LOCK_STATE,
+	LOCK_30S_STATE,
+	NORMAL_STATE,
+	ENTER_PASS_STATE
+}KeyPad_State;
+
+KeyPad_State keypad_state = LOCK_STATE;
+
+uint8_t count_err;
+uint32_t time_start_err; 
+
+#define PASSWORD_LEN 8
+uint8_t pass[PASSWORD_LEN] = "01234567"; 
+
+typedef struct
+{
+	uint8_t buff[PASSWORD_LEN];
+	uint8_t index;
+}Password_Typedef;
+
+Password_Typedef password;
+
+void KeyPadPressingCallback(uint8_t key)
+{
+	if(key >= '0' && key <= '9')
+	{
+		if(password.index < 8)
+		{
+			password.buff[password.index++] = key;
+			//print len lcd
+		}
+	}
+	else if(key == 'D')
+	{
+		//check pass
+		password.buff[password.index] = '\0';
+		if(strcmp((char *)password.buff, (char *)pass) == 0)
+		{
+			//mat khau dung
+			keypad_state = NORMAL_STATE;
+		}
+		else
+		{
+			count_err++;
+			if(count_err < 3)
+			{
+				memset(password.buff, 0, PASSWORD_LEN);
+				password.index = 0;
+			}
+			else
+			{
+				time_start_err = HAL_GetTick();
+				keypad_state = LOCK_30S_STATE;
+			}
+		}
+	}
+}
+
+void KeyPadPressingTimeoutCallback(uint8_t key)
+{
+	if(key == 'D')
+	{
+		password.index = 0;
+		keypad_state = ENTER_PASS_STATE;
+	}
+}
+
+void handle_keypad_state()
+{
+	switch(keypad_state)
+	{
+		case LOCK_30S_STATE:
+		{
+			if(HAL_GetTick() - time_start_err >= 30000)
+			{
+				keypad_state = LOCK_STATE;
+			}
+			break;
+		}
+		default:
+			break;
+	}
+}
+
+//----------------- XU LY UART ---------------------
 uint8_t data_rx;
-uint8_t uart_flag = 0;
-uint8_t car_speed = 100;
+uint8_t uart_rx_flag = 0;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == huart1.Instance)
 	{
-		uart_flag = 1;
+		uart_rx_flag = 1;
 		HAL_UART_Receive_IT(&huart1, &data_rx, 1);
 	}
 }
 
-void uart_debug_lcd()
-{
-	if(uart_flag)
-	{
-		uart_flag = 0;
-		
-        // Xóa màn hình d? hi?n th? cái m?i
-		lcd_clear();
-		
-		// --- Dòng 1: Hi?n th? KÝ T? ---
-		lcd_put_cur(0, 0);
-        // Ki?m tra xem ký t? có in du?c ra màn hình không (ASCII t? 32 d?n 126)
-        if(data_rx >= 32 && data_rx <= 126) 
-        {
-		    sprintf(lcd_buffer, "Char: %c", data_rx);
-        }
-        else 
-        {
-            // N?u là ký t? di?u khi?n (xu?ng dòng, tab...) thì in d?u ch?m h?i
-            sprintf(lcd_buffer, "Char: [?]");
-        }
-		lcd_send_string(lcd_buffer);
-		
-		// --- Dòng 2: Hi?n th? Mã HEX và Mã th?p phân ---
-        // Ðây là cái quan tr?ng nh?t d? b?t l?i
-		lcd_put_cur(1, 0);
-		sprintf(lcd_buffer, "Hex:%02X  Dec:%d", data_rx, data_rx);
-		lcd_send_string(lcd_buffer);
-	}
-}
-
-void Show_LCD(char* status, int speed)
-{
-    lcd_clear();
-    
-    // Dòng 1: Tr?ng thái (VD: FORWARD)
-    lcd_put_cur(0, 0);
-    lcd_send_string(status);
-    
-    // Dòng 2: T?c d? (VD: Speed: 100)
-    lcd_put_cur(1, 0);
-    sprintf(lcd_buffer, "Speed: %d", speed);
-    lcd_send_string(lcd_buffer);
-}
+uint8_t car_speed = 100;
 
 void uart_handle()
 {
-	if(uart_flag)
+	if(uart_rx_flag)
 	{
-		uart_flag = 0;
+		uart_rx_flag = 0;
 		
 		switch(data_rx)
 		{
-			case 'S':
-			case '0':
+			case 'S': 
+			case '0':  
 				car_control(CAR_STOP_STATE, 0);
-				Show_LCD("STOP", 0);
 				break;
-			case 'F':
-			case '1':
-				car_control(CAR_FORWARD_STATE, 10);
-				Show_LCD("FORWARD", car_speed);
+
+			case 'F': 
+			case '1':  
+				car_control(CAR_FORWARD_STATE, car_speed);
 				break;
-			case 'B':
-			case '2':
-				car_control(CAR_BACKWARD_STATE, 20);
-				Show_LCD("BACKWARD", car_speed);
+
+			case 'B': 
+			case '2':  
+				car_control(CAR_BACKWARD_STATE, car_speed);
 				break;
-			case 'L':
-			case '3':
-				car_control(CAR_LEFT_STATE, 30);
-				Show_LCD("TURN LEFT", car_speed);
+
+			case 'L': 
+			case '3':  
+				car_control(CAR_FORWARD_LEFT_STATE, car_speed);
 				break;
-			case 'R':
-			case '4':
-				car_control(CAR_RIGHT_STATE, 40);
-				Show_LCD("TURN RIGHT", car_speed);
+
+			case 'R': 
+			case '4':  
+				car_control(CAR_FORWARD_RIGHT_STATE, car_speed);
 				break;
-			case '5':
-				car_speed = 50; 
-				Show_LCD("SPEED SET", 50);
-				break;
-			case '6': 
-				car_speed = 60; 
-				Show_LCD("SPEED SET", 60);
-				break;
-			case '7': 
-				car_speed = 70; 
-				Show_LCD("SPEED SET", 70);
-				break;
-			case '8': 
-				car_speed = 80; 
-				Show_LCD("SPEED SET", 80);
-				break;
-			case '9': 
-				car_speed = 90; 
-				Show_LCD("SPEED SET", 90);
-				break;
-			case 'q': // Max speed
-				car_speed = 100;
-				Show_LCD("SPEED SET", 100);
-				break;
-				
-			default:
-			
-				break;
+
+			case '5': car_speed = 50; 
+			case '6': car_speed = 60; 
+			case '7': car_speed = 70; 
+			case '8': car_speed = 80; 
+			case '9': car_speed = 90; 
+			case 'q': car_speed = 100; 
+
+			default: break;
 		}
 	}
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -224,13 +250,12 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	lcd_init();
-	lcd_put_cur(0, 0);
-	lcd_send_string("Waiting Data...");
 	car_init(&htim1);
 	__HAL_TIM_MOE_ENABLE(&htim1); 
-
 	HAL_UART_Receive_IT(&huart1, &data_rx, 1);
+	lcd_init(&hlcd1, &hi2c1, LCD_ADDR_DEFAULT);
+	lcd_set_cursor(&hlcd1, 0, 0);
+	lcd_printf(&hlcd1, "hello");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -240,9 +265,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		uart_debug_lcd();
-    HAL_Delay(10);
 		uart_handle();
+		KeyPad_Handle();
+		handle_keypad_state();
   }
   /* USER CODE END 3 */
 }
@@ -446,11 +471,27 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, MOTOR2_IO_Pin|MOTOR2_IOB13_Pin|MOTOR1_IO_Pin|MOTOR1_IOB15_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PA0 PA1 PA2 PA3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PA4 PA5 PA6 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : MOTOR2_IO_Pin MOTOR2_IOB13_Pin MOTOR1_IO_Pin MOTOR1_IOB15_Pin */
   GPIO_InitStruct.Pin = MOTOR2_IO_Pin|MOTOR2_IOB13_Pin|MOTOR1_IO_Pin|MOTOR1_IOB15_Pin;
