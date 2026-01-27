@@ -24,8 +24,8 @@
 #include "Car.h"
 #include "stm32f1xx_hal.h"
 #include "stdio.h"
-#include "KeyPad.h"
-#include <string.h>
+//#include "KeyPad.h"
+#include "string.h"
 #include "LiquidCrystal_I2C.h"
 /* USER CODE END Includes */
 
@@ -68,93 +68,195 @@ LiquidCrystal_I2C hlcd1;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//------------------- XU LY NHAP MAT KHAU ----------------------
-typedef enum
+////------------------- XU LY NHAP MAT KHAU ----------------------
+//typedef enum
+//{
+//	LOCK_STATE,
+//	LOCK_30S_STATE,
+//	NORMAL_STATE,
+//	ENTER_PASS_STATE
+//}KeyPad_State;
+
+//KeyPad_State keypad_state = LOCK_STATE;
+
+//uint8_t count_err = 0;
+//uint32_t time_start_err = 0; 
+////uint8_t lock_remain_sec = 30;
+////uint32_t last_update_tick = 0;
+
+
+//#define PASSWORD_LEN 9
+//uint8_t pass[PASSWORD_LEN] = "01234567"; 
+
+//typedef struct
+//{
+//	uint8_t buff[PASSWORD_LEN];
+//	uint8_t index;
+//}Password_Typedef;
+
+//Password_Typedef password = {0};
+
+//void Show_Enter_Pass_Screen()
+//{
+//	lcd_clear_display(&hlcd1);
+//	lcd_set_cursor(&hlcd1, 0, 0);
+//	lcd_printf(&hlcd1, "Enter Password:");
+//	lcd_set_cursor(&hlcd1, 1, 0);
+//}
+
+//void KeyPadPressingCallback(uint8_t key)
+//{
+//    if(keypad_state == LOCK_30S_STATE)
+//        return; // dang khóa thì không cho nh?p
+
+//    if(key >= '0' && key <= '9')
+//    {		
+//			if(password.index == 0)
+//			{
+//        // ?? Xoá dòng 1 tru?c khi nh?p l?i
+//        lcd_set_cursor(&hlcd1, 1, 0);
+//        lcd_printf(&hlcd1, "                "); // 16 spaces
+//        lcd_set_cursor(&hlcd1, 1, 0);
+//			}
+//			if(password.index < 8)
+//			{
+//				password.buff[password.index++] = key;
+//				lcd_putchar(&hlcd1, '*');
+//			}
+//    }
+//    else if(key == 'D') // ENTER
+//{
+//    // ? CHUA NH?P Ð? 8 S? ? KHÔNG CHECK
+//    if(password.index < 8)
+//    {
+//        lcd_set_cursor(&hlcd1, 1, 0);
+//        lcd_printf(&hlcd1, "Enter 8 digits ");
+//        return;
+//    }
+
+//    password.buff[password.index] = '\0';
+
+//    if(strcmp((char*)password.buff, (char*)pass) == 0)
+//    {
+//        keypad_state = NORMAL_STATE;
+//        count_err = 0;
+//        password.index = 0;
+//        memset(password.buff, 0, PASSWORD_LEN);
+
+//        lcd_clear_display(&hlcd1);
+//        lcd_printf(&hlcd1, "PASSWORD CORRECT");
+//        lcd_set_cursor(&hlcd1, 1, 0);
+//        lcd_printf(&hlcd1, "System Unlocked");
+//    }
+//    else
+//    {
+//        count_err++;
+
+//        if(count_err < 3)
+//        {
+//            lcd_clear_display(&hlcd1);
+//            lcd_printf(&hlcd1, "WRONG PASSWORD!");
+//            lcd_set_cursor(&hlcd1, 1, 0);
+//            lcd_printf(&hlcd1, "Try again %d/3", count_err);
+
+//            HAL_Delay(1000);
+//            password.index = 0;
+//            memset(password.buff, 0, PASSWORD_LEN);
+//            Show_Enter_Pass_Screen();
+//        }
+//        else
+//        {
+//            keypad_state = LOCK_30S_STATE;
+//            time_start_err = HAL_GetTick();
+
+//            lcd_clear_display(&hlcd1);
+//            lcd_printf(&hlcd1, "SYSTEM LOCKED!");
+//        }
+//    }
+//}
+//    else if(key == 'C') // DELETE
+//    {
+//        if(password.index > 0)
+//        {
+//            password.index--;
+//            password.buff[password.index] = 0;
+//            lcd_set_cursor(&hlcd1, 1, password.index);
+//            lcd_putchar(&hlcd1, ' ');
+//            lcd_set_cursor(&hlcd1, 1, password.index);
+//        }
+//    }
+//}
+
+////void KeyPadPressingTimeoutCallback(uint8_t key)
+////{
+////	if(key == 'D')
+////	{
+////		password.index = 0;
+////		keypad_state = ENTER_PASS_STATE;
+////	}
+////}
+
+//void handle_keypad_state(void)
+//{
+//    if(keypad_state == LOCK_30S_STATE)
+//    {
+//        uint32_t now = HAL_GetTick();
+//        uint32_t elapsed_sec = (now - time_start_err) / 1000;
+
+//        if(elapsed_sec <= 30)
+//        {
+//            uint8_t remain = 30 - elapsed_sec;
+
+//            lcd_set_cursor(&hlcd1, 1, 0);
+//            lcd_printf(&hlcd1, "Wait %2d seconds ", remain);
+//        }
+
+//        if(elapsed_sec >= 30)
+//        {
+//            keypad_state = LOCK_STATE;
+//            count_err = 0;
+//            password.index = 0;
+//            memset(password.buff, 0, PASSWORD_LEN);
+
+//            lcd_clear_display(&hlcd1);
+//            Show_Enter_Pass_Screen();
+//        }
+//    }
+//}
+extern uint8_t car_state;
+uint8_t car_speed = 100;
+uint8_t old_car_state = 255; // Giá tr? rác ban d?u
+uint8_t old_car_speed = 255;
+
+void lcd_show_state_speed(void)
 {
-	LOCK_STATE,
-	LOCK_30S_STATE,
-	NORMAL_STATE,
-	ENTER_PASS_STATE
-}KeyPad_State;
+    // 1. Ch? c?p nh?t STATE n?u có thay d?i
+    if(car_state != old_car_state)
+    {
+        // Thay vì xóa toàn màn hình, ta ch? dua con tr? v? d?u dòng và ghi dè
+        lcd_set_cursor(&hlcd1, 0, 0);
+        
+        // Thêm kho?ng tr?ng phía sau d? xóa ch? cu dài hon
+        // Ví d?: "STOP   " s? xóa du?c ch? "FORWARD" cu
+        switch (car_state)
+        {
+            case CAR_STOP_STATE:          lcd_printf(&hlcd1, "State: STOP    "); break;
+            case CAR_FORWARD_STATE:       lcd_printf(&hlcd1, "State: FORWARD "); break;
+            case CAR_BACKWARD_STATE:      lcd_printf(&hlcd1, "State: BACK    "); break;
+            case CAR_FORWARD_LEFT_STATE:  lcd_printf(&hlcd1, "State: LEFT    "); break;
+            case CAR_FORWARD_RIGHT_STATE: lcd_printf(&hlcd1, "State: RIGHT   "); break;
+        }
+        old_car_state = car_state; // Luu l?i
+    }
 
-KeyPad_State keypad_state = LOCK_STATE;
-
-uint8_t count_err;
-uint32_t time_start_err; 
-
-#define PASSWORD_LEN 8
-uint8_t pass[PASSWORD_LEN] = "01234567"; 
-
-typedef struct
-{
-	uint8_t buff[PASSWORD_LEN];
-	uint8_t index;
-}Password_Typedef;
-
-Password_Typedef password;
-
-void KeyPadPressingCallback(uint8_t key)
-{
-	if(key >= '0' && key <= '9')
-	{
-		if(password.index < 8)
-		{
-			password.buff[password.index++] = key;
-			//print len lcd
-		}
-	}
-	else if(key == 'D')
-	{
-		//check pass
-		password.buff[password.index] = '\0';
-		if(strcmp((char *)password.buff, (char *)pass) == 0)
-		{
-			//mat khau dung
-			keypad_state = NORMAL_STATE;
-		}
-		else
-		{
-			count_err++;
-			if(count_err < 3)
-			{
-				memset(password.buff, 0, PASSWORD_LEN);
-				password.index = 0;
-			}
-			else
-			{
-				time_start_err = HAL_GetTick();
-				keypad_state = LOCK_30S_STATE;
-			}
-		}
-	}
+    // 2. Ch? c?p nh?t SPEED n?u có thay d?i
+    if(car_speed != old_car_speed)
+    {
+        lcd_set_cursor(&hlcd1, 1, 0);
+        lcd_printf(&hlcd1, "Speed: %3d %%   ", car_speed); // %3d d? can l?, thêm kho?ng tr?ng d? xóa s? cu
+        old_car_speed = car_speed; // Luu l?i
+    }
 }
-
-void KeyPadPressingTimeoutCallback(uint8_t key)
-{
-	if(key == 'D')
-	{
-		password.index = 0;
-		keypad_state = ENTER_PASS_STATE;
-	}
-}
-
-void handle_keypad_state()
-{
-	switch(keypad_state)
-	{
-		case LOCK_30S_STATE:
-		{
-			if(HAL_GetTick() - time_start_err >= 30000)
-			{
-				keypad_state = LOCK_STATE;
-			}
-			break;
-		}
-		default:
-			break;
-	}
-}
-
 //----------------- XU LY UART ---------------------
 uint8_t data_rx;
 uint8_t uart_rx_flag = 0;
@@ -167,7 +269,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
-uint8_t car_speed = 100;
+
 
 void uart_handle()
 {
@@ -180,37 +282,43 @@ void uart_handle()
 			case 'S': 
 			case '0':  
 				car_control(CAR_STOP_STATE, 0);
+				lcd_show_state_speed();
 				break;
 
 			case 'F': 
 			case '1':  
 				car_control(CAR_FORWARD_STATE, car_speed);
+				lcd_show_state_speed();
 				break;
 
 			case 'B': 
 			case '2':  
 				car_control(CAR_BACKWARD_STATE, car_speed);
+				lcd_show_state_speed();
 				break;
 
 			case 'L': 
 			case '3':  
 				car_control(CAR_FORWARD_LEFT_STATE, car_speed);
+				lcd_show_state_speed();
 				break;
 
 			case 'R': 
 			case '4':  
 				car_control(CAR_FORWARD_RIGHT_STATE, car_speed);
+				lcd_show_state_speed();
 				break;
 
-			case '5': car_speed = 50; 
-			case '6': car_speed = 60; 
-			case '7': car_speed = 70; 
-			case '8': car_speed = 80; 
-			case '9': car_speed = 90; 
-			case 'q': car_speed = 100; 
+			case '5': car_speed = 50;  lcd_show_state_speed(); break;
+			case '6': car_speed = 60; lcd_show_state_speed(); break;
+			case '7': car_speed = 70; lcd_show_state_speed(); break;
+			case '8': car_speed = 80; lcd_show_state_speed(); break;
+			case '9': car_speed = 90; lcd_show_state_speed(); break;
+			case 'q': car_speed = 100; lcd_show_state_speed(); break;
 
 			default: break;
 		}
+		lcd_show_state_speed();
 	}
 }
 
@@ -253,9 +361,18 @@ int main(void)
 	car_init(&htim1);
 	__HAL_TIM_MOE_ENABLE(&htim1); 
 	HAL_UART_Receive_IT(&huart1, &data_rx, 1);
+	
 	lcd_init(&hlcd1, &hi2c1, LCD_ADDR_DEFAULT);
-	lcd_set_cursor(&hlcd1, 0, 0);
-	lcd_printf(&hlcd1, "hello");
+	lcd_show_state_speed();
+
+
+//	count_err = 0;
+//	password.index = 0;
+//	memset(password.buff, 0, PASSWORD_LEN);
+//	keypad_state = LOCK_STATE;
+
+//	Show_Enter_Pass_Screen();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -266,8 +383,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		uart_handle();
-		KeyPad_Handle();
-		handle_keypad_state();
+//		KeyPad_Handle();
+//		handle_keypad_state();
   }
   /* USER CODE END 3 */
 }

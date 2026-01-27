@@ -16,6 +16,5 @@ typedef enum
 
 void car_init(TIM_HandleTypeDef *htim);
 void car_control(CarState car_state, uint8_t speed);
-//void car_steering_control(CarState move_dir, uint8_t speed, float left_ratio, float right_ratio);
 
 #endif
