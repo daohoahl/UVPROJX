@@ -1,0 +1,18 @@
+Removed Pin From Net: NetName=GND Pin=JP1-1
+Removed Pin From Net: NetName=+5 Pin=JP1-2
+Removed Pin From Net: NetName=SDA Pin=JP1-3
+Removed Pin From Net: NetName=SCL Pin=JP1-4
+Added Component: Designator=JP1(JP 1x4 CC)
+Add component (AddParameter): Name = "Chung_Loai"; Value = "C?m"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Don_Vi"; Value = "Con"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Ghi_Chu"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Kieu_Chan"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Ma_Hang"; Value = "MH001265"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Ten_Linh_Kien"; Value = "Jump Ðon Cái 2.54MM 1x40P Cong"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=JP1-1
+Added Pin To Net: NetName=+5 Pin=JP1-2
+Added Pin To Net: NetName=SDA Pin=JP1-3
+Added Pin To Net: NetName=SCL Pin=JP1-4
+Added Member To Class: ClassName=SCH_1 Member=Component D2 100v
+Added Member To Class: ClassName=SCH_1 Member=Component P3 Domino 3 pin
+Added Room: Name=SCH_1

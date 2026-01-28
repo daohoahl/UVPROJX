@@ -1,0 +1,6 @@
+Added Pin To Net: NetName=ENA Pin=JP2-1
+Added Pin To Net: NetName=ENB Pin=JP2-2
+Added Pin To Net: NetName=ENA Pin=U1-6
+Added Pin To Net: NetName=ENB Pin=U1-11
+Added Member To Class: ClassName=SCH_1 Member=Component JP1 JP 1x4 2.54
+Added Room: Name=SCH_1

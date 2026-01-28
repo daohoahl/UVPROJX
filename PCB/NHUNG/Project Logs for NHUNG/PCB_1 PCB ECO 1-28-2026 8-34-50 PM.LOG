@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=+5 Pin=HC1-5
+Added Pin To Net: NetName=+3.3 Pin=HC1-5
+Added Pin To Net: NetName=+3.3 Pin=STM1-20
+Added Net: Name=+3.3
+Added Room: Name=SCH_1

@@ -1,0 +1,19 @@
+Removed Pin From Net: NetName=ENA Pin=JP2-1
+Removed Pin From Net: NetName=ENB Pin=JP2-2
+Removed Pin From Net: NetName=IN1 Pin=JP3-1
+Removed Pin From Net: NetName=IN2 Pin=JP3-2
+Removed Pin From Net: NetName=IN3 Pin=JP3-3
+Removed Pin From Net: NetName=IN4 Pin=JP3-4
+Removed Pin From Net: NetName=+5 Pin=JP5-1
+Removed Pin From Net: NetName=+5 Pin=JP6-1
+Removed Pin From Net: NetName=+5 Pin=P3-1
+Removed Pin From Net: NetName=GND Pin=P3-2
+Removed Pin From Net: NetName=VCC Pin=P3-3
+Removed Member From Class: ClassName=SCH_1 Member=JP3
+Removed Member From Class: ClassName=SCH_1 Member=JP4
+Removed Member From Class: ClassName=SCH_1 Member=JP5
+Removed Member From Class: ClassName=SCH_1 Member=JP6
+Removed Member From Class: ClassName=SCH_1 Member=P3
+Change Component Designator: OldDesignator=JP4 NewDesignator=JP2
+Change Net Name : Old Net Name=NetJP4_2 New Net Name=NetJP2_2
+Added Room: Name=SCH_1

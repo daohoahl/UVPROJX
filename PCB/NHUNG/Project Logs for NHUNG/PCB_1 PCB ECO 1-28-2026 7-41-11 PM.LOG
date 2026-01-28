@@ -1,0 +1,8 @@
+Removed Pin From Net: NetName=VCC Pin=JP2-1
+Added Component: Designator=P3(Domino_2pin_5.08mm)
+Added Pin To Net: NetName=VCC Pin=P3-1
+Added Pin To Net: NetName=NetP3_2 Pin=P3-2
+Added Pin To Net: NetName=NetP3_2 Pin=U2-1
+Added Net: Name=NetP3_2
+Added Member To Class: ClassName=SCH_1 Member=Component P3 Domino 2 pin
+Added Room: Name=SCH_1

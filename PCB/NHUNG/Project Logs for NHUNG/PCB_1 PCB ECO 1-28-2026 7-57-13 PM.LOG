@@ -1,0 +1,9 @@
+Removed Pin From Net: NetName=GND Pin=JP1-1
+Removed Pin From Net: NetName=+5 Pin=JP1-2
+Removed Pin From Net: NetName=SDA Pin=JP1-3
+Removed Pin From Net: NetName=SCL Pin=JP1-4
+Added Pin To Net: NetName=SCL Pin=JP1-1
+Added Pin To Net: NetName=SDA Pin=JP1-2
+Added Pin To Net: NetName=+5 Pin=JP1-3
+Added Pin To Net: NetName=GND Pin=JP1-4
+Added Room: Name=SCH_1
