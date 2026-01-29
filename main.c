@@ -24,7 +24,6 @@
 #include "Car.h"
 #include "stm32f1xx_hal.h"
 #include "stdio.h"
-//#include "KeyPad.h"
 #include "string.h"
 #include "LiquidCrystal_I2C.h"
 /* USER CODE END Includes */
@@ -48,6 +47,7 @@
 I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart1;
 
@@ -61,6 +61,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 LiquidCrystal_I2C hlcd1;
 /* USER CODE END PFP */
@@ -68,193 +69,33 @@ LiquidCrystal_I2C hlcd1;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-////------------------- XU LY NHAP MAT KHAU ----------------------
-//typedef enum
-//{
-//	LOCK_STATE,
-//	LOCK_30S_STATE,
-//	NORMAL_STATE,
-//	ENTER_PASS_STATE
-//}KeyPad_State;
-
-//KeyPad_State keypad_state = LOCK_STATE;
-
-//uint8_t count_err = 0;
-//uint32_t time_start_err = 0; 
-////uint8_t lock_remain_sec = 30;
-////uint32_t last_update_tick = 0;
-
-
-//#define PASSWORD_LEN 9
-//uint8_t pass[PASSWORD_LEN] = "01234567"; 
-
-//typedef struct
-//{
-//	uint8_t buff[PASSWORD_LEN];
-//	uint8_t index;
-//}Password_Typedef;
-
-//Password_Typedef password = {0};
-
-//void Show_Enter_Pass_Screen()
-//{
-//	lcd_clear_display(&hlcd1);
-//	lcd_set_cursor(&hlcd1, 0, 0);
-//	lcd_printf(&hlcd1, "Enter Password:");
-//	lcd_set_cursor(&hlcd1, 1, 0);
-//}
-
-//void KeyPadPressingCallback(uint8_t key)
-//{
-//    if(keypad_state == LOCK_30S_STATE)
-//        return; // dang khóa thì không cho nh?p
-
-//    if(key >= '0' && key <= '9')
-//    {		
-//			if(password.index == 0)
-//			{
-//        // ?? Xoá dòng 1 tru?c khi nh?p l?i
-//        lcd_set_cursor(&hlcd1, 1, 0);
-//        lcd_printf(&hlcd1, "                "); // 16 spaces
-//        lcd_set_cursor(&hlcd1, 1, 0);
-//			}
-//			if(password.index < 8)
-//			{
-//				password.buff[password.index++] = key;
-//				lcd_putchar(&hlcd1, '*');
-//			}
-//    }
-//    else if(key == 'D') // ENTER
-//{
-//    // ? CHUA NH?P Ð? 8 S? ? KHÔNG CHECK
-//    if(password.index < 8)
-//    {
-//        lcd_set_cursor(&hlcd1, 1, 0);
-//        lcd_printf(&hlcd1, "Enter 8 digits ");
-//        return;
-//    }
-
-//    password.buff[password.index] = '\0';
-
-//    if(strcmp((char*)password.buff, (char*)pass) == 0)
-//    {
-//        keypad_state = NORMAL_STATE;
-//        count_err = 0;
-//        password.index = 0;
-//        memset(password.buff, 0, PASSWORD_LEN);
-
-//        lcd_clear_display(&hlcd1);
-//        lcd_printf(&hlcd1, "PASSWORD CORRECT");
-//        lcd_set_cursor(&hlcd1, 1, 0);
-//        lcd_printf(&hlcd1, "System Unlocked");
-//    }
-//    else
-//    {
-//        count_err++;
-
-//        if(count_err < 3)
-//        {
-//            lcd_clear_display(&hlcd1);
-//            lcd_printf(&hlcd1, "WRONG PASSWORD!");
-//            lcd_set_cursor(&hlcd1, 1, 0);
-//            lcd_printf(&hlcd1, "Try again %d/3", count_err);
-
-//            HAL_Delay(1000);
-//            password.index = 0;
-//            memset(password.buff, 0, PASSWORD_LEN);
-//            Show_Enter_Pass_Screen();
-//        }
-//        else
-//        {
-//            keypad_state = LOCK_30S_STATE;
-//            time_start_err = HAL_GetTick();
-
-//            lcd_clear_display(&hlcd1);
-//            lcd_printf(&hlcd1, "SYSTEM LOCKED!");
-//        }
-//    }
-//}
-//    else if(key == 'C') // DELETE
-//    {
-//        if(password.index > 0)
-//        {
-//            password.index--;
-//            password.buff[password.index] = 0;
-//            lcd_set_cursor(&hlcd1, 1, password.index);
-//            lcd_putchar(&hlcd1, ' ');
-//            lcd_set_cursor(&hlcd1, 1, password.index);
-//        }
-//    }
-//}
-
-////void KeyPadPressingTimeoutCallback(uint8_t key)
-////{
-////	if(key == 'D')
-////	{
-////		password.index = 0;
-////		keypad_state = ENTER_PASS_STATE;
-////	}
-////}
-
-//void handle_keypad_state(void)
-//{
-//    if(keypad_state == LOCK_30S_STATE)
-//    {
-//        uint32_t now = HAL_GetTick();
-//        uint32_t elapsed_sec = (now - time_start_err) / 1000;
-
-//        if(elapsed_sec <= 30)
-//        {
-//            uint8_t remain = 30 - elapsed_sec;
-
-//            lcd_set_cursor(&hlcd1, 1, 0);
-//            lcd_printf(&hlcd1, "Wait %2d seconds ", remain);
-//        }
-
-//        if(elapsed_sec >= 30)
-//        {
-//            keypad_state = LOCK_STATE;
-//            count_err = 0;
-//            password.index = 0;
-//            memset(password.buff, 0, PASSWORD_LEN);
-
-//            lcd_clear_display(&hlcd1);
-//            Show_Enter_Pass_Screen();
-//        }
-//    }
-//}
+//---------------- LCD SHOW --------------------
 extern uint8_t car_state;
 uint8_t car_speed = 100;
-uint8_t old_car_state = 255; // Giá tr? rác ban d?u
+uint8_t old_car_state = 255;
 uint8_t old_car_speed = 255;
 
 void lcd_show_state_speed(void)
 {
-    // 1. Ch? c?p nh?t STATE n?u có thay d?i
     if(car_state != old_car_state)
     {
-        // Thay vì xóa toàn màn hình, ta ch? dua con tr? v? d?u dòng và ghi dè
-        lcd_set_cursor(&hlcd1, 0, 0);
-        
-        // Thêm kho?ng tr?ng phía sau d? xóa ch? cu dài hon
-        // Ví d?: "STOP   " s? xóa du?c ch? "FORWARD" cu
-        switch (car_state)
-        {
-            case CAR_STOP_STATE:          lcd_printf(&hlcd1, "State: STOP    "); break;
-            case CAR_FORWARD_STATE:       lcd_printf(&hlcd1, "State: FORWARD "); break;
-            case CAR_BACKWARD_STATE:      lcd_printf(&hlcd1, "State: BACK    "); break;
-            case CAR_FORWARD_LEFT_STATE:  lcd_printf(&hlcd1, "State: LEFT    "); break;
-            case CAR_FORWARD_RIGHT_STATE: lcd_printf(&hlcd1, "State: RIGHT   "); break;
-        }
-        old_car_state = car_state; // Luu l?i
-    }
-
-    // 2. Ch? c?p nh?t SPEED n?u có thay d?i
+			lcd_set_cursor(&hlcd1, 0, 0);
+			
+			switch (car_state)
+			{
+				case CAR_STOP_STATE:          lcd_printf(&hlcd1, "State: STOP    "); break;
+				case CAR_FORWARD_STATE:       lcd_printf(&hlcd1, "State: FORWARD "); break;
+				case CAR_BACKWARD_STATE:      lcd_printf(&hlcd1, "State: BACK    "); break;
+				case CAR_FORWARD_LEFT_STATE:  lcd_printf(&hlcd1, "State: LEFT    "); break;
+				case CAR_FORWARD_RIGHT_STATE: lcd_printf(&hlcd1, "State: RIGHT   "); break;
+			}
+			old_car_state = car_state; 
+	}
     if(car_speed != old_car_speed)
     {
-        lcd_set_cursor(&hlcd1, 1, 0);
-        lcd_printf(&hlcd1, "Speed: %3d %%   ", car_speed); // %3d d? can l?, thêm kho?ng tr?ng d? xóa s? cu
-        old_car_speed = car_speed; // Luu l?i
+			lcd_set_cursor(&hlcd1, 1, 0);
+			lcd_printf(&hlcd1, "Speed: %3d %%   ", car_speed); 
+			old_car_speed = car_speed; 
     }
 }
 //----------------- XU LY UART ---------------------
@@ -268,8 +109,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		HAL_UART_Receive_IT(&huart1, &data_rx, 1);
 	}
 }
-
-
 
 void uart_handle()
 {
@@ -323,6 +162,97 @@ void uart_handle()
 }
 
 
+//------------------ HCSR04 -------------------
+//typedef enum
+//{
+//	HCSR04_IDLE_STATE,
+//	HCSR04_GEN_PULSE_STATE,
+//	HCSR04_WAIT_EXT_RISSING_STATE,
+//	HCSR04_WAIT_EXT_FALLING_STATE,
+//	HCSR04_COMPLETE_STATE
+//}HCSR04_State;
+
+//HCSR04_State hcsr04_state = HCSR04_IDLE_STATE;
+//uint32_t time_start_gen_pulse;
+//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+//{
+//	if(GPIO_Pin == HCSR04_ECHO_EXT_Pin)
+//	{
+//		switch(hcsr04_state)
+//		{
+//			case HCSR04_WAIT_EXT_RISSING_STATE:
+//			{
+//				if(HAL_GPIO_ReadPin(HCSR04_ECHO_EXT_GPIO_Port, HCSR04_ECHO_EXT_Pin) == 1)
+//				{
+//					//__HAL_TIM_SetCounter(&htim3, 0);
+//					htim3.Instance->CNT = 0;
+//					HAL_TIM_Base_Start(&htim3);
+//					hcsr04_state = HCSR04_WAIT_EXT_FALLING_STATE;
+//				}
+//				else
+//				{
+//					hcsr04_state = HCSR04_IDLE_STATE;
+//				}
+//				break;
+//			}
+//			case HCSR04_WAIT_EXT_FALLING_STATE:
+//			{
+//				if(HAL_GPIO_ReadPin(HCSR04_ECHO_EXT_GPIO_Port, HCSR04_ECHO_EXT_Pin) == 0)
+//				{
+//					HAL_TIM_Base_Stop(&htim3);
+//					hcsr04_state = HCSR04_COMPLETE_STATE;
+//				}
+//				else
+//				{
+//					hcsr04_state = HCSR04_IDLE_STATE;
+//				}
+//				break;
+//			}
+//			default:
+//				break;
+//		}
+//	}
+//}
+
+//void HCSR04_Start()
+//{
+//	HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_SET);
+//	hcsr04_state = HCSR04_GEN_PULSE_STATE;
+//	time_start_gen_pulse = HAL_GetTick();
+////	HAL_Delay(1);
+
+//}
+
+//float distance;
+//void HCSR04_Complete_Callback(float kc)
+//{
+//	distance = kc;
+//	//lam tac vu gi do
+//}
+
+//void HCSR04_Handle()
+//{
+//	switch(hcsr04_state)
+//	{
+//		case HCSR04_GEN_PULSE_STATE:
+//		{
+//			if(HAL_GetTick() - time_start_gen_pulse >= 1)
+//			{
+//				HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_RESET);
+//				hcsr04_state = HCSR04_WAIT_EXT_RISSING_STATE;
+//			}
+//			break;
+//		}
+//		case HCSR04_COMPLETE_STATE:
+//		{
+//			float kc = 0.017*htim3.Instance->CNT;
+//			HCSR04_Complete_Callback(kc);
+//			break;
+//		}
+//		default:
+//			break;
+//	}
+//}
 /* USER CODE END 0 */
 
 /**
@@ -357,6 +287,7 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	car_init(&htim1);
 	__HAL_TIM_MOE_ENABLE(&htim1); 
@@ -364,15 +295,6 @@ int main(void)
 	
 	lcd_init(&hlcd1, &hi2c1, LCD_ADDR_DEFAULT);
 	lcd_show_state_speed();
-
-
-//	count_err = 0;
-//	password.index = 0;
-//	memset(password.buff, 0, PASSWORD_LEN);
-//	keypad_state = LOCK_STATE;
-
-//	Show_Enter_Pass_Screen();
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -383,8 +305,13 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		uart_handle();
-//		KeyPad_Handle();
-//		handle_keypad_state();
+//		static uint32_t t_read_hcsr;
+//		if(HAL_GetTick() - t_read_hcsr >= 300)
+//		{
+//			HCSR04_Start();
+//			t_read_hcsr = HAL_GetTick();
+//		}
+//		HCSR04_Handle();
   }
   /* USER CODE END 3 */
 }
@@ -542,6 +469,51 @@ static void MX_TIM1_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 71;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -592,23 +564,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, MOTOR2_IO_Pin|MOTOR2_IOB13_Pin|MOTOR1_IO_Pin|MOTOR1_IOB15_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PA0 PA1 PA2 PA3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+  /*Configure GPIO pin : HCSR04_TRIG_Pin */
+  GPIO_InitStruct.Pin = HCSR04_TRIG_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(HCSR04_TRIG_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA4 PA5 PA6 PA7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : HCSR04_ECHO_EXT_Pin */
+  GPIO_InitStruct.Pin = HCSR04_ECHO_EXT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(HCSR04_ECHO_EXT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : MOTOR2_IO_Pin MOTOR2_IOB13_Pin MOTOR1_IO_Pin MOTOR1_IOB15_Pin */
   GPIO_InitStruct.Pin = MOTOR2_IO_Pin|MOTOR2_IOB13_Pin|MOTOR1_IO_Pin|MOTOR1_IOB15_Pin;
@@ -616,6 +588,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
